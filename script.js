@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let missionTimerInterval;
     let pendingHpChanges = {};
     let hpChangeTimers = {};
+    let wallHpChangeTimers = {}; // Aggiunto per i danni alle mura
     let allEventCards = [];
     let currentEventCard = null;
     
@@ -90,36 +91,22 @@ document.addEventListener('DOMContentLoaded', () => {
         eventRemoveBtn: document.getElementById('event-remove-btn'),
     };
     
-    // --- *** MODIFICA PER LETTURA LOCALE *** ---
     async function loadEventCards() {
-        // Il percorso ora punta a un file nella stessa cartella
         const url = 'events.json'; 
-        
         try {
             const response = await fetch(url);
-            
             if (!response.ok) {
                 throw new Error(`Errore HTTP! Status: ${response.status}`);
             }
-            
             allEventCards = await response.json();
             console.log('Carte evento caricate con successo dal file locale!', allEventCards);
-            
             if (gameState && (!gameState.eventDeck || gameState.eventDeck.length === 0)) {
                 initializeEventDeck();
             }
-            
         } catch (error) {
             console.error("Impossibile caricare le carte evento da events.json:", error);
             alert("Errore: non è stato possibile trovare o leggere il file 'events.json'. Assicurati che sia nella stessa cartella del file HTML.");
-            // Fallback a carte di default
-            allEventCards = [
-                {
-                    "titolo": "Carta di Fallback",
-                    "descrizione": "Impossibile caricare 'events.json'. Questa è una carta di default.",
-                    "tipo": "Errore"
-                }
-            ];
+            allEventCards = [{"titolo": "Carta di Fallback", "descrizione": "Impossibile caricare 'events.json'.", "tipo": "Errore"}];
         }
     }
 
@@ -486,6 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDeckCount();
     };
 
+    // --- FIX: Aggiunto updateAllUIElements() per aggiornare la vista ---
     const handleMissionToggle = (e) => {
         const target = e.target.closest('.mission-button, .remove-from-mission-btn');
         if (!target) return;
@@ -494,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const unit = data.find(u => u.id == id);
         if (unit) {
             unit.onMission = !unit.onMission;
-            updateAllUIElements();
+            updateAllUIElements(); // <-- BUG FIX
             saveGameState();
         }
     };
@@ -611,6 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.eventDiscardPile = [];
             gameState.removedEventCards = [];
         }
+        // Aggiunto per compatibilità con salvataggi vecchi
+        if (!gameState.wallHp) {
+            gameState.wallHp = { maria: 15, rose: 5, sina: 3 };
+        }
     };
     
     const initializeDefaultState = () => {
@@ -645,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
             logData: [], 
             morale: 15, 
             xp: 0,
+            wallHp: { maria: 15, rose: 5, sina: 3 },
             eventDeck: [],
             eventDiscardPile: [],
             removedEventCards: []
@@ -671,22 +664,52 @@ document.addEventListener('DOMContentLoaded', () => {
         renderWallHP();
     };
     
+    // --- NUOVA LOGICA PER DANNI ALLE MURA ---
+    const processWallHpChange = (wallName, finalHp) => {
+        const oldHp = gameState.wallHp[wallName];
+        const damage = oldHp - finalHp;
+
+        if (damage > 0) {
+            const label = { maria: 'Maria', rose: 'Rose', sina: 'Sina'}[wallName];
+            addLogEntry(`Wall ${label} ha subito ${damage} danni.`, 'damage');
+        }
+
+        gameState.wallHp[wallName] = finalHp;
+        saveGameState();
+    };
+
+    const handleWallHpChange = (e) => {
+        const slider = e.target;
+        const wallName = slider.dataset.wallName;
+        const newHp = parseInt(slider.value, 10);
+
+        updateSlider(slider);
+
+        clearTimeout(wallHpChangeTimers[wallName]);
+
+        wallHpChangeTimers[wallName] = setTimeout(() => {
+            processWallHpChange(wallName, newHp);
+        }, 1000);
+    };
+
     const renderWallHP = () => {
         elements.wallHpSection.innerHTML = '<h3 class="stats-title">Mura</h3>';
          ['maria', 'rose', 'sina'].forEach(wall => {
             const maxHp = { maria: 15, rose: 5, sina: 3 }[wall];
             const label = { maria: 'Wall Maria', rose: 'Wall Rose', sina: 'Wall Sina'}[wall];
+            const currentHp = gameState.wallHp ? gameState.wallHp[wall] : maxHp;
+
             const statDiv = document.createElement('div');
             statDiv.className = 'stat';
             statDiv.innerHTML = `
                 <label for="wall-${wall}-hp">${label}:</label>
                 <div class="slider-value-container">
-                    <input type="range" id="wall-${wall}-hp" min="0" max="${maxHp}" value="${maxHp}">
-                    <span>${maxHp}</span>
+                    <input type="range" id="wall-${wall}-hp" data-wall-name="${wall}" min="0" max="${maxHp}" value="${currentHp}">
+                    <span>${currentHp}</span>
                 </div>`;
             elements.wallHpSection.appendChild(statDiv);
             const slider = statDiv.querySelector('input');
-            slider.addEventListener('input', () => updateSlider(slider));
+            slider.addEventListener('input', handleWallHpChange);
             updateSlider(slider);
         });
     };
