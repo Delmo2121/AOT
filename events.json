@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "titolo": "Rifornimenti Inattesi",
+    "descrizione": "Le tue squadre trovano una cassa di rifornimenti. Tutti i giocatori pescano una carta equipaggiamento.",
+    "tipo": "bonus"
+  },
+  {
+    "id": 2,
+    "titolo": "Maltempo Improvviso",
+    "descrizione": "Una pioggia torrenziale riduce la visibilità. Malus di -1 a tutti i tiri di dado per questo turno.",
+    "tipo": "malus"
+  },
+  {
+    "id": 3,
+    "titolo": "Tradimento!",
+    "descrizione": "Una delle tue reclute si rivela essere un Gigante Mutaforma! Spawn di 1 Gigante Mutaforma.",
+    "tipo": "spawn"
+  },
+    {
+    "id": 4,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 5,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 6,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 7,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 8,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 9,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 10,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 11,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 12,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 13,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 14,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 15,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 16,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 17,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 18,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 19,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 20,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 21,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 22,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 23,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 24,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 25,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 26,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 27,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  },
+    {
+    "id": 28,
+    "titolo": "Discesa del Gigante!",
+    "descrizione": "Si sente un rombo di tuono in lontananza...",
+    "tipo": "spawn"
+  }
+]
