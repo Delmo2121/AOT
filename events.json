@@ -167,10 +167,18 @@
     "descrizione": "Si sente un rombo di tuono in lontananza...",
     "tipo": "spawn"
   },
-{
+  {
     "id": 29,
     "titolo": "Mutazione!",
     "descrizione": "Appare un gigante mutaforma nell'ultima fila di esagoni. Lancia un d6 per stabilire la colonna.",
     "tipo": "spawn"
-  }
+  },
+    {
+    "id": 30,
+    "titolo": "Tremore",
+    "descrizione": "Tutti i membri del corpo di ricerca saltano il turno di movimento per questo turno",
+    "tipo": "Malus"
+  }  
+  
 ]
+
