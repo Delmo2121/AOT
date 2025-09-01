@@ -176,13 +176,13 @@
     {
     "id": 30,
     "titolo": "Tremore",
-    "descrizione": "Tutti i membri del corpo di ricerca saltano il turno di movimento per questo turno",
+    "descrizione": "Si sente una scossa di terremoto in lontananza, il comandante ordina di non muoversi. Tutti i membri del corpo di ricerca saltano il turno di movimento per questo turno",
     "tipo": "Malus"
   },
   {
     "id": 31,
     "titolo": "Movimento obbligato",
-    "descrizione": "Tutti i personaggi devono compiere un'azione di movimento aggiuntiva",
+    "descrizione": "Il comandante ordina a tutte le squadre di muoversi per accelerare la missione. Tutti i personaggi devono compiere un'azione di movimento aggiuntiva",
     "tipo": "Bonus"
   },  
   {
@@ -200,15 +200,16 @@
   {
     "id": 34,
     "titolo": "Mutazione d'attacco",
-    "descrizione": "Ogniqualvolta un gigante dovrebbe infliggere danno in questa missione, egli infligge un danno aggiuntivo",
+    "descrizione": "I giganti sembrano avere denti più affilati del solito. Ogniqualvolta un gigante dovrebbe infliggere danno in questa missione, egli infligge un danno aggiuntivo",
     "tipo": "Malus"
   },
   {
     "id": 35,
     "titolo": "Mutazione di difesa",
-    "descrizione": "Ogniqualvolta un gigante dovrebbe subire danno in questa missione, egli subisce un danno in meno",
+    "descrizione": "I giganti sembrano avere una pelle più dura del solito. Ogniqualvolta un gigante dovrebbe subire danno in questa missione, egli subisce un danno in meno",
     "tipo": "Malus"
   }
 ]
+
 
 
