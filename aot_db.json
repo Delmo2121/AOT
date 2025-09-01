@@ -80,7 +80,11 @@
 	  { "id": 28, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" },
 	  { "id": 29, "titolo": "Duello",  "descrizione": "Scegli una recluta e muovila in un esagono adiacente ad un gigante. La recluta e il gigante combattono solo con i bonus da essi generati lanciando regolarmente i dadi finchè uno dei due non muore.", "tipo": "Evento" },
 	  { "id": 30, "titolo": "Tremore",  "descrizione": "Il comandante ha avvertito un tremore e ordina a tutte le squadre di non muoversi. Tutti i personaggi saltano il turno di movimento per questo turno", "tipo": "Malus" },
-	  { "id": 31, "titolo": "Accelerazione",  "descrizione": "Il comandante ordina di accelerare la missione. Tutti i personaggi devono compiere un'azione di movimento aggiuntiva per questo turno", "tipo": "Bonus" }  
+	  { "id": 31, "titolo": "Accelerazione", "descrizione": "Il comandante ordina di accelerare la missione. Tutti i personaggi devono compiere un'azione di movimento aggiuntiva per questo turno", "tipo": "Bonus" },
+      {"id": 32, "titolo": "Mutazione!", "descrizione": "Appare un gigante mutaforma nell'ultima fila di esagoni. Lancia un d6 per stabilire la colonna.", "tipo": "spawn"},
+  	  {"id": 33, "titolo": "Processo truccato", "descrizione": "Conserva questa carta fino alla fine della missione. Per ogni recluta di ritorno dalla missione puoi decidere se infliggerle 2 danni oppure perdere 1 morale", "tipo": "Malus"},
+      {"id": 34, "titolo": "Mutazione d'attacco", "descrizione": "I giganti sembrano avere denti più affilati del solito. Ogniqualvolta un gigante dovrebbe infliggere danno in questa missione, egli infligge un danno aggiuntivo", "tipo": "Malus"},
+      {"id": 35, "titolo": "Mutazione di difesa", "descrizione": "I giganti sembrano avere una pelle più dura del solito. Ogniqualvolta un gigante dovrebbe subire danno in questa missione, egli subisce un danno in meno",  "tipo": "Malus"}	  
 	],
   "units": {
     "recruits": [
@@ -96,7 +100,7 @@
       { "id": 10, "name": "Thomas Wagner",     "hp": 8,  "initialHp": 8,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/9b2c2c/FFFFFF?text=T" },
       { "id": 11, "name": "Mina Carolina",     "hp": 7,  "initialHp": 7,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/6b46c1/FFFFFF?text=M" },
       { "id": 12, "name": "Samuel L. Jackson", "hp": 8,  "initialHp": 8,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/000000/FFFFFF?text=S" },
-      { "id": 13, "name": "Mikasa Ackerman",   "hp": 14, "initialHp": 14, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/c23b22/FFFFFF?text=M" },
+      { "id": 13, "name": "Mikasa Ackerman",   "hp": 14, "initialHp": 14, "onMission": false, "type": "recruit",   "imageUrl": "https://static.wikitide.net/greatcharacterswiki/a/a2/850_Mikasa.jpg"},
       { "id": 14, "name": "Jean Kirstein",     "hp": 12, "initialHp": 12, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/c4a683/000000?text=J" },
       { "id": 15, "name": "Floch Forster",     "hp": 9,  "initialHp": 9,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/e53e3e/FFFFFF?text=F" },
       { "id": 16, "name": "Eren Yeager",       "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/7d7c68/FFFFFF?text=E" }
