@@ -104,6 +104,7 @@
 	  {"id": 52, "titolo": "Carica!",                "descrizione": "Nel prossimo turno si può compiere um'azione di movimento bonus",  "tipo": "Evento"},
 	  {"id": 53, "titolo": "Amuleto della fortuna",  "descrizione": "La recluta con meno HP sceglie un numero. Durante questa missione ogni volta che il risultato di qualsiasi d20 è pari a quel numero, la recluta recupera 1HP",  "tipo": "Evento"},
 	  {"id": 53, "titolo": "Maledizione",            "descrizione": "La recluta con più HP sceglie un numero. Durante questa missione ogni volta che il risultato di qualsiasi d20 è pari a quel numero, la recluta perde 1HP",  "tipo": "Evento"},
+	  {"id": 54, "titolo": "Boato della terra",      "descrizione": "Tutti i giganti sulla mappa si muovono di due esagoni verso le mura. Ogni soldato presente sul loro cammino deve effettuare un tiro salvezza CD=13 o subire 3 danni. I personaggi immobilizzati non possono effettuare tiri salvezza",  "tipo": "Evento"},
 
 	],
   "units": {
