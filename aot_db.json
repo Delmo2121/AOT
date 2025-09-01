@@ -115,7 +115,7 @@
       { "id": 5,  "name": "Bertholdt Hoover",  "hp": 8, "initialHp": 13, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/a0aec0/000000?text=B" },
       { "id": 6,  "name": "Annie Leonhart",    "hp": 8, "initialHp": 12, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/fde68a/000000?text=A" },
       { "id": 7,  "name": "Ymir Fritz",        "hp": 7, "initialHp": 11, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/718096/FFFFFF?text=Y" },
-      { "id": 8,  "name": "Historia Reiss",    "hp": 8,  "initialHp": 7,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/fefcbf/000000?text=K" },
+      { "id": 8,  "name": "Historia Reiss",    "hp": 8,  "initialHp": 7,  "onMission": false, "type": "recruit",   "imageUrl": "https://images.everyeye.it/img-notizie/attack-on-titan-cosa-succede-historia-storia-v3-693469.jpg" },
       { "id": 9,  "name": "Marco Bodt",        "hp": 5,  "initialHp": 5,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/b7791f/FFFFFF?text=M" },
       { "id": 10, "name": "Marlo Freudeberg",  "hp": 5,  "initialHp": 5,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/9b2c2c/FFFFFF?text=T" },
       { "id": 11, "name": "Hitch Dreyse",      "hp": 5,  "initialHp": 5,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/6b46c1/FFFFFF?text=M" },
@@ -123,7 +123,7 @@
       { "id": 13, "name": "Mikasa Ackerman",   "hp": 13, "initialHp": 14, "onMission": false, "type": "recruit",   "imageUrl": "https://static.wikitide.net/greatcharacterswiki/a/a2/850_Mikasa.jpg"},
       { "id": 14, "name": "Jean Kirstein",     "hp": 12, "initialHp": 12, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/c4a683/000000?text=J" },
       { "id": 15, "name": "Floch Forster",     "hp": 6,  "initialHp": 6,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/e53e3e/FFFFFF?text=F" },
-      { "id": 16, "name": "Eren Yeager",       "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/7d7c68/FFFFFF?text=E" }
+      { "id": 16, "name": "Eren Yeager",       "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://www.georgefiorini.eu/images/manga/attacco-dei-giganti/eren-jaeger-tv.jpg" }
     ],
     "commanders": [
       { "id": 1, "name": "Hange Zoë",      "hp": 17, "initialHp": 17, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/5d4c46/FFFFFF?text=H" },
