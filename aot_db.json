@@ -77,7 +77,10 @@
 	  { "id": 25, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" },
 	  { "id": 26, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" },
 	  { "id": 27, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" },
-	  { "id": 28, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" }
+	  { "id": 28, "titolo": "Discesa del Gigante!",  "descrizione": "Si sente un rombo di tuono in lontananza...", "tipo": "spawn" },
+	  { "id": 29, "titolo": "Duello",  "descrizione": "Scegli una recluta e muovila in un esagono adiacente ad un gigante. La recluta e il gigante combattono solo con i bonus da essi generati lanciando regolarmente i dadi finchè uno dei due non muore.", "tipo": "Evento" },
+	  { "id": 30, "titolo": "Tremore",  "descrizione": "Il comandante ha avvertito un tremore e ordina a tutte le squadre di non muoversi. Tutti i personaggi saltano il turno di movimento per questo turno", "tipo": "Malus" },
+	  { "id": 31, "titolo": "Accelerazione",  "descrizione": "Il comandante ordina di accelerare la missione. Tutti i personaggi devono compiere un'azione di movimento aggiuntiva per questo turno", "tipo": "Bonus" }  
 	],
   "units": {
     "recruits": [
