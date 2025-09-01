@@ -166,5 +166,11 @@
     "titolo": "Discesa del Gigante!",
     "descrizione": "Si sente un rombo di tuono in lontananza...",
     "tipo": "spawn"
+  },
+{
+    "id": 29,
+    "titolo": "Mutazione!",
+    "descrizione": "Appare un gigante mutaforma nell'ultima fila di esagoni. Lancia un d6 per stabilire la colonna.",
+    "tipo": "spawn"
   }
 ]
