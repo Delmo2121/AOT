@@ -13,8 +13,8 @@
   },
   {
     "id": 3,
-    "titolo": "Tradimento!",
-    "descrizione": "Una delle tue reclute si rivela essere un Gigante Mutaforma! Spawn di 1 Gigante Mutaforma.",
+    "titolo": "Trasformazione!",
+    "descrizione": "Se nella missione sono presenti Annie, Berthold o Reiner rimescolali nel mazzo reclute e sostituiscili con il rispettivo gigante Mutaforma. Se nella missione è presente Ymir rimescolala nel mazzo delle reclute e sostituiscila con il rispettivo gigante Anomalo. Muovila come se fosse una recluta. Se nella missione è presente Eren aumenta tutti i suoi punti caratteristica a 5",
     "tipo": "spawn"
   },
     {
@@ -178,7 +178,37 @@
     "titolo": "Tremore",
     "descrizione": "Tutti i membri del corpo di ricerca saltano il turno di movimento per questo turno",
     "tipo": "Malus"
-  }  
-  
+  },
+  {
+    "id": 31,
+    "titolo": "Movimento obbligato",
+    "descrizione": "Tutti i personaggi devono compiere un'azione di movimento aggiuntiva",
+    "tipo": "Bonus"
+  },  
+  {
+    "id": 32,
+    "titolo": "Processo truccato",
+    "descrizione": "Conserva questa carta fino alla fine della missione. Per ogni recluta di ritorno dalla missione puoi decidere se infliggerle 2 danni oppure perdere 1 morale",
+    "tipo": "Malus"
+  },
+  {
+    "id": 33,
+    "titolo": "Duello",
+    "descrizione": "Scegli una recluta e muovila fino a posizionarla in un esagono adiacente ad un gigante. I due combattono lanciando regolarmente i dadi finchè uno dei due non muore",
+    "tipo": "Malus"
+  },  
+  {
+    "id": 34,
+    "titolo": "Mutazione d'attacco",
+    "descrizione": "Ogniqualvolta un gigante dovrebbe infliggere danno in questa missione, egli infligge un danno aggiuntivo",
+    "tipo": "Malus"
+  },
+  {
+    "id": 35,
+    "titolo": "Mutazione di difesa",
+    "descrizione": "Ogniqualvolta un gigante dovrebbe subire danno in questa missione, egli subisce un danno in meno",
+    "tipo": "Malus"
+  }
 ]
+
 
