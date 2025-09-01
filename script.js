@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DATA & STATE MANAGEMENT ---
+    let db = {};                       // conterrà i dati di aot_db.json
+    let xpTable = [];                  // da db.xpTable
+    let missionData = {};              // da db.missions
+    let titanSpawnTable = {};          // da db.titanSpawnTable
+    let defaultMissionTimerSeconds = 20 * 60; // sovrascrivibile da db.settings.missionTimerSeconds
+
     let gameState = {};
     let missionTimerInterval;
     let pendingHpChanges = {};
@@ -7,42 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let wallHpChangeTimers = {}; // Aggiunto per i danni alle mura
     let allEventCards = [];
     let currentEventCard = null;
-    
-    const titanTypes = ['Puro', 'Anomalo', 'Mutaforma'];
-    const xpTable = [
-        { level: 1, xpRequired: 0, bonus: "-" },
-        { level: 2, xpRequired: 10, bonus: "+1 AGI" },
-        { level: 3, xpRequired: 20, bonus: "+1 AGI, +1 TEC" },
-        { level: 4, xpRequired: 30, bonus: "+1 AGI, +1 TEC, +1 STR" },
-        { level: 5, xpRequired: 40, bonus: "Cura le tue reclute di 5 HP complessivi. +1 AGI, +1 TEC, +1 STR" },
-        { level: 6, xpRequired: 50, bonus: "Ogni giocatore può pescare una carta equipaggiamento. +1 AGI, +1 TEC, +1 STR" },
-        { level: 7, xpRequired: 60, bonus: "Ripara le tue attuali mura di 5 HP. +1 AGI, +1 TEC, +1 STR" },
-        { level: 8, xpRequired: 70, bonus: "Cura i tuoi comandanti di 8 HP complessivi. +1 AGI, +1 TEC, +1 STR" },
-        { level: 9, xpRequired: 60, bonus: "Cura le tue reclute di 10 HP complessivi. +1 AGI, +1 TEC, +1 STR" },
-        { level: 10, xpRequired: 70, bonus: "Le tue reclute subiscono un danno in meno da tutte le fonti. +1 AGI, +1 TEC, +1 STR" }
-    ];
-    
-    const missionData = {
-        1: { objective: "Uccidi 2 Giganti Puri.", reward: "+2 XP", event: "Spawn di 1 Gigante Puro" },
-        2: { objective: "Uccidi 3 Giganti Puri.", reward: "+2 XP", event: "Spawn di 2 Giganti Puri" },
-        3: { objective: "Uccidi 1 Gigante Anomalo e 2 Giganti Puri.", reward: "+3 XP", event: "Spawn di 1 Gigante Anomalo" },
-        4: { objective: "Uccidi 2 Giganti Puri.", reward: "+5 XP, +1 Morale", event: "La base è difesa da un gigante anomalo." },
-        5: { objective: "Uccidi 2 Giganti Puri.", reward: "+4 XP", event: "Una fitta nebbia riduce la visibilità." },
-        6: { objective: "Uccidi 2 Giganti Puri.", reward: "+2 XP, +1 Morale", event: "Le informazioni sono in un'area infestata da piccoli giganti agili." },
-        7: { objective: "Uccidi 2 Giganti Puri.", reward: "+3 XP", event: "Un gigante corazzato sta cercando di sfondare il cancello." },
-        8: { objective: "Uccidi 2 Giganti Puri.", reward: "+6 XP", event: "Il gigante anomalo ha abilità imprevedibili." }
-    };
 
-    const titanSpawnTable = {
-        1: { 'Puro': '1-16', 'Anomalo': '17-19', 'Mutaforma': '20' },
-        2: { 'Puro': '1-15', 'Anomalo': '16-18', 'Mutaforma': '19-20' },
-        3: { 'Puro': '1-14', 'Anomalo': '15-17', 'Mutaforma': '18-20' },
-        4: { 'Puro': '1-13', 'Anomalo': '14-16', 'Mutaforma': '17-20' },
-        5: { 'Puro': '1-12', 'Anomalo': '13-15', 'Mutaforma': '16-20' },
-        6: { 'Puro': '1-11', 'Anomalo': '12-14', 'Mutaforma': '15-20' },
-        7: { 'Puro': '1-9', 'Anomalo': '10-13', 'Mutaforma': '14-20' },
-        8: { 'Puro': '1-8', 'Anomalo': '9-12', 'Mutaforma': '13-20' }
-    };
+    const titanTypes = ['Puro', 'Anomalo', 'Mutaforma'];
+
 
     const elements = {
         moraleSlider: document.getElementById('morale'),
@@ -90,23 +63,22 @@ document.addEventListener('DOMContentLoaded', () => {
         eventDiscardBtn: document.getElementById('event-discard-btn'),
         eventRemoveBtn: document.getElementById('event-remove-btn'),
     };
-    
-    async function loadEventCards() {
-        const url = 'events.json'; 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Errore HTTP! Status: ${response.status}`);
-            }
-            allEventCards = await response.json();
-            console.log('Carte evento caricate con successo dal file locale!', allEventCards);
-            if (gameState && (!gameState.eventDeck || gameState.eventDeck.length === 0)) {
-                initializeEventDeck();
-            }
-        } catch (error) {
-            console.error("Impossibile caricare le carte evento da events.json:", error);
-            alert("Errore: non è stato possibile trovare o leggere il file 'events.json'. Assicurati che sia nella stessa cartella del file HTML.");
-            allEventCards = [{"titolo": "Carta di Fallback", "descrizione": "Impossibile caricare 'events.json'.", "tipo": "Errore"}];
+
+    async function loadDB() {
+        // se aot_db.json è nella root accanto a index.html:
+        const res = await fetch('./aot_db.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('Impossibile caricare aot_db.json');
+
+        db = await res.json();
+
+        // mappa tabelle/setting
+        xpTable = Array.isArray(db.xpTable) ? db.xpTable : [];
+        missionData = db.missions || {};
+        titanSpawnTable = db.titanSpawnTable || {};
+        allEventCards = db.eventCards || [];
+
+        if (db.settings?.missionTimerSeconds) {
+            defaultMissionTimerSeconds = db.settings.missionTimerSeconds;
         }
     }
 
@@ -124,15 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!gameState.logData) gameState.logData = [];
         const timestamp = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         gameState.logData.unshift({ time: timestamp, message, type });
-        if (gameState.logData.length > 100) { 
+        if (gameState.logData.length > 100) {
             gameState.logData.pop();
         }
         renderLog();
         saveGameState();
     };
-    
+
     const renderLog = () => {
-        elements.logEntries.innerHTML = gameState.logData.map(entry => 
+        elements.logEntries.innerHTML = gameState.logData.map(entry =>
             `<p class="log-${entry.type}"><strong>[${entry.time}]</strong> ${entry.message}</p>`
         ).join('');
     };
@@ -150,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 valueSpan.textContent = slider.value;
             }
         }
-        
+
         const percentage = (slider.value / slider.max) * 100;
         let colorVar = 'var(--status-low)';
         if (percentage > 60) colorVar = 'var(--status-high)';
@@ -186,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.xpBonuses.textContent = `Bonus: ${currentLevel.bonus}`;
         updateBonusRecap();
     };
-    
+
     const updateBonusRecap = () => {
         const totalBonuses = { AGI: 0, STR: 0, TEC: 0 };
         const morale = parseInt(elements.moraleSlider.value, 10);
@@ -209,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-        
+
         let bonusString = Object.entries(totalBonuses)
             .filter(([, value]) => value !== 0)
             .map(([stat, value]) => `${value > 0 ? '+' : ''}${value} ${stat}`)
@@ -230,9 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderUnitListInPopup = (listElement, data, type) => {
         listElement.innerHTML = '';
-        const living = data.filter(u => u.hp > 0).sort((a,b) => a.name.localeCompare(b.name));
-        const dead = data.filter(u => u.hp <= 0).sort((a,b) => a.name.localeCompare(b.name));
-        
+        const living = data.filter(u => u.hp > 0).sort((a, b) => a.name.localeCompare(b.name));
+        const dead = data.filter(u => u.hp <= 0).sort((a, b) => a.name.localeCompare(b.name));
+
         const createLi = (unit) => {
             const li = document.createElement('li');
             const hpClass = getHpStatusClass(unit.hp, unit.initialHp);
@@ -259,14 +231,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         dead.forEach(unit => listElement.appendChild(createLi(unit)));
     };
-    
+
     const updateMissionView = () => {
         elements.missionCount.textContent = `Missione #${gameState.currentMissionNumber}`;
         const currentMission = missionData[gameState.currentMissionNumber] || { objective: "N/D", reward: "N/D", event: "N/D" };
         elements.missionObjectiveText.textContent = currentMission.objective;
         elements.missionRewardText.textContent = currentMission.reward;
         elements.missionEventText.textContent = currentMission.event;
-        
+
         elements.missionUnitsGrid.innerHTML = '';
         const onMissionUnits = [...gameState.recruitsData, ...gameState.commandersData].filter(u => u.onMission && u.hp > 0);
 
@@ -274,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.missionUnitsGrid.innerHTML = `<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1; margin: auto;">Nessuna unità in missione.</p>`;
             return;
         }
-        
+
         onMissionUnits.forEach(unit => {
             const card = document.createElement('div');
             const hpClass = getHpStatusClass(unit.hp, unit.initialHp);
@@ -297,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderTitanSpawnLegend = () => {
         const header = document.querySelector('.titans-header');
         if (!header) return;
-        
+
         let legend = header.querySelector('.titan-spawn-legend');
         if (!legend) {
             legend = document.createElement('div');
@@ -322,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.titanGrid.innerHTML = `<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1; margin: auto;">Nessun gigante in campo.</p>`;
             return;
         }
-        
+
         allTitans.forEach(titan => {
             const card = document.createElement('div');
             const isDead = titan.hp <= 0;
@@ -350,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.titanGrid.appendChild(card);
         });
     };
-    
+
     const handleHpChange = (e) => {
         const target = e.target.closest('.hp-change');
         if (!target) return;
@@ -370,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         pendingHpChanges[key].amount += parseInt(amount, 10);
-        
+
         hpChangeTimers[key] = setTimeout(() => {
             if (pendingHpChanges[key]) {
                 processHpChange(pendingHpChanges[key].unit, pendingHpChanges[key].amount);
@@ -382,13 +354,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const processHpChange = (unit, totalAmount) => {
         if (!unit || totalAmount === 0) return;
-    
+
         const oldHp = unit.hp;
         const wasAlive = oldHp > 0;
-    
+
         unit.hp = Math.max(0, unit.hp + totalAmount);
         const isNowDead = unit.hp <= 0;
-    
+
         if (wasAlive && !isNowDead) {
             if (totalAmount < 0) {
                 addLogEntry(`${unit.name} ha subito ${-totalAmount} danni.`, 'damage');
@@ -396,13 +368,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLogEntry(`${unit.name} è stato curato di ${totalAmount} HP.`, 'info');
             }
         }
-    
+
         if (wasAlive && isNowDead) {
             handleUnitDeath(unit);
         } else if (!wasAlive && unit.hp > 0) {
             handleUnitResurrection(unit);
         }
-    
+
         updateAllUIElements();
         saveGameState();
     };
@@ -410,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleUnitDeath = (unit) => {
         let moraleChange = 0;
         let xpChange = 0;
-        
+
         if (titanTypes.includes(unit.type)) {
             const rewards = { 'Puro': { m: 1, xp: 1 }, 'Anomalo': { m: 2, xp: 2 }, 'Mutaforma': { m: 5, xp: 3 } };
             const reward = rewards[unit.type];
@@ -489,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleTitanActions = (e) => {
         const target = e.target;
-        
+
         if (target.closest('.hp-change')) {
             handleHpChange(e);
             return;
@@ -511,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTitans();
         saveGameState();
     };
-    
+
     const addTitan = () => {
         const newId = (gameState.titanIdCounter || 0) + 1;
         gameState.titanIdCounter = newId;
@@ -531,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const missionKeys = Object.keys(missionData);
         if (newMissionNumber < 1) newMissionNumber = 1;
         if (newMissionNumber > missionKeys.length) newMissionNumber = missionKeys.length;
-        
+
         if (gameState.currentMissionNumber !== newMissionNumber) {
             gameState.currentMissionNumber = newMissionNumber;
             addLogEntry(`Passato alla Missione #${gameState.currentMissionNumber}.`, 'mission');
@@ -540,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTitanSpawnLegend();
         saveGameState();
     };
-    
+
     const completeMission = () => {
         const currentMission = missionData[gameState.currentMissionNumber];
         if (!currentMission) return;
@@ -550,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (xpMatch) applyStatChanges(0, parseInt(xpMatch[1], 10));
         const moraleMatch = rewardString.match(/\+(\d+)\s*Morale/);
         if (moraleMatch) applyStatChanges(parseInt(moraleMatch[1], 10), 0);
-        
+
         gameState.recruitsData.forEach(u => u.onMission = false);
         gameState.commandersData.forEach(u => u.onMission = false);
         addLogEntry("Tutte le unità sono state richiamate.", "info");
@@ -559,16 +531,16 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.titansData = [];
             addLogEntry("Tutti i giganti sono stati rimossi.", "info");
         }
-        
+
         addLogEntry(`Missione #${gameState.currentMissionNumber} completata!`, 'mission');
-        
+
         changeMission(1);
         updateAllUIElements();
     };
 
     const startMissionTimer = () => {
         clearInterval(missionTimerInterval);
-        let time = 20 * 60;
+        let time = Number.isFinite(defaultMissionTimerSeconds) ? defaultMissionTimerSeconds : 20 * 60;
         missionTimerInterval = setInterval(() => {
             const minutes = Math.floor(time / 60);
             let seconds = time % 60;
@@ -579,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000);
     };
-    
+
     const restartMissionTimer = () => {
         startMissionTimer();
         addLogEntry("Timer della missione riavviato.", "mission");
@@ -604,40 +576,85 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.wallHp = { maria: 15, rose: 5, sina: 3 };
         }
     };
-    
+
+    function clampInt(n, min, max) { return Math.max(min, Math.min(max, parseInt(n, 10))); }
+    // --- helpers usati sopra (aggiungili se non già presenti) ---
+    function clampInt(n, min, max) { return Math.max(min, Math.min(max, parseInt(n, 10))); }
+    function safeString(v, fallback = '') { return (typeof v === 'string' && v.length ? v : fallback); }
+    function defaultInitialHpFor(type) { return type === 'commander' ? 18 : 10; }
+
+    function normalizeUnit(u, fixedType) {
+        const id = Number.isFinite(u.id) ? parseInt(u.id, 10) : genUnitId(fixedType);
+        const initialHp = Number.isFinite(u.initialHp) ? parseInt(u.initialHp, 10) : defaultInitialHpFor(fixedType);
+        const hp = clampInt(Number.isFinite(u.hp) ? parseInt(u.hp, 10) : initialHp, 0, initialHp);
+        return {
+            id,
+            name: safeString(u.name, fixedType === 'recruit' ? 'Recluta' : 'Comandante'),
+            hp,
+            initialHp,
+            onMission: Boolean(u.onMission),
+            type: fixedType,
+            imageUrl: safeString(u.imageUrl, 'https://placehold.co/60x60/cccccc/000000?text=IMG')
+        };
+    }
+
+    function normalizeTitan(t) {
+        const legal = ['Puro', 'Anomalo', 'Mutaforma'];
+        const type = legal.includes(t.type) ? t.type : 'Puro';
+        const initialHp = Number.isFinite(t.initialHp) ? parseInt(t.initialHp, 10) : 12;
+        const hp = clampInt(Number.isFinite(t.hp) ? parseInt(t.hp, 10) : initialHp, 0, initialHp);
+        return {
+            id: Number.isFinite(t.id) ? parseInt(t.id, 10) : genTitanId(),
+            name: safeString(t.name, 'Gigante'),
+            hp,
+            initialHp,
+            cooldown: Math.max(0, Number.isFinite(t.cooldown) ? parseInt(t.cooldown, 10) : 0),
+            type,
+            isDefeated: Boolean(t.isDefeated),
+            createdAt: Number.isFinite(t.createdAt) ? Number(t.createdAt) : Date.now()
+        };
+    }
+
+    function genUnitId(type) {
+        const arr = type === 'commander' ? (gameState.commandersData || []) : (gameState.recruitsData || []);
+        const maxId = arr.reduce((m, u) => Math.max(m, Number(u.id) || 0), 0);
+        return maxId + 1;
+    }
+    function genTitanId() {
+        gameState.titanIdCounter = (gameState.titanIdCounter || 0) + 1;
+        return gameState.titanIdCounter;
+    }
+
     const initializeDefaultState = () => {
+        const moraleMin = db.settings?.moraleMin ?? 0;
+        const moraleMax = db.settings?.moraleMax ?? 15;
+        const xpMin = db.settings?.xpMin ?? 0;
+        const xpMax = db.settings?.xpMax ?? 70;
+        const wallDefaultHp = db.settings?.wallDefaultHp;
+
+        const moraleDefault = clampInt(db.settings?.moraleDefault ?? 15, moraleMin, moraleMax);
+        const xpDefault = clampInt(db.settings?.xpDefault ?? 0, xpMin, xpMax);
+
+        // Se il DB fornisce le unità, usale; altrimenti fallback agli array esistenti
+        const recruitsFromDb = Array.isArray(db.units?.recruits) ? db.units.recruits : [];
+        const commandersFromDb = Array.isArray(db.units?.commanders) ? db.units.commanders : [];
+        const titansFromDb = Array.isArray(db.units?.titans) ? db.units.titans : [];
+        const titanIdCounter = Number.isFinite(db.units?.titanIdCounterStart)
+            ? db.units.titanIdCounterStart
+            : 0;
+
+        const titans = titansFromDb.length ? titansFromDb : [];
+
         return {
             currentMissionNumber: 1,
-            recruitsData: [
-                { id: 1, name: 'Armin Arlert', hp: 10, initialHp: 10, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/f5d273/000000?text=A' },
-                { id: 2, name: 'Connie Springer', hp: 8, initialHp: 8, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/d3d3d3/000000?text=C' },
-                { id: 3, name: 'Sasha Blouse', hp: 9, initialHp: 9, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/c4a683/FFFFFF?text=S' },
-                { id: 4, name: 'Reiner Braun', hp: 15, initialHp: 15, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/e2e8f0/000000?text=R' },
-                { id: 5, name: 'Bertholdt Hoover', hp: 13, initialHp: 13, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/a0aec0/000000?text=B' },
-                { id: 6, name: 'Annie Leonhart', hp: 12, initialHp: 12, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/fde68a/000000?text=A' },
-                { id: 7, name: 'Ymir', hp: 11, initialHp: 11, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/718096/FFFFFF?text=Y' },
-                { id: 8, name: 'Krista Lenz', hp: 7, initialHp: 7, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/fefcbf/000000?text=K' },
-                { id: 9, name: 'Marco Bott', hp: 8, initialHp: 8, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/b7791f/FFFFFF?text=M' },
-                { id: 10, name: 'Thomas Wagner', hp: 8, initialHp: 8, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/9b2c2c/FFFFFF?text=T' },
-                { id: 11, name: 'Mina Carolina', hp: 7, initialHp: 7, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/6b46c1/FFFFFF?text=M' },
-                { id: 12, name: 'Samuel L. Jackson', hp: 8, initialHp: 8, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/000000/FFFFFF?text=S' },
-                { id: 13, name: 'Mikasa Ackerman', hp: 14, initialHp: 14, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/c23b22/FFFFFF?text=M' },
-                { id: 14, name: 'Jean Kirstein', hp: 12, initialHp: 12, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/c4a683/000000?text=J' },
-                { id: 15, name: 'Floch Forster', hp: 9, initialHp: 9, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/e53e3e/FFFFFF?text=F' },
-                { id: 16, name: 'Eren Yeager', hp: 10, initialHp: 10, onMission: false, type: 'recruit', imageUrl: 'https://placehold.co/60x60/7d7c68/FFFFFF?text=E' }
-            ],
-            commandersData: [
-                { id: 1, name: 'Hange Zoë', hp: 17, initialHp: 17, onMission: false, type: 'commander', imageUrl: 'https://placehold.co/60x60/5d4c46/FFFFFF?text=H' },
-                { id: 2, name: 'Mike Zacharias', hp: 18, initialHp: 18, onMission: false, type: 'commander', imageUrl: 'https://placehold.co/60x60/48bb78/000000?text=M' },
-                { id: 3, name: 'Erwin Smith', hp: 16, initialHp: 16, onMission: false, type: 'commander', imageUrl: 'https://placehold.co/60x60/0077be/FFFFFF?text=E' },
-                { id: 4, name: 'Levi Ackerman', hp: 20, initialHp: 20, onMission: false, type: 'commander', imageUrl: 'https://placehold.co/60x60/4a4a4a/FFFFFF?text=L' }
-            ],
-            titansData: [],
-            titanIdCounter: 0, 
-            logData: [], 
-            morale: 15, 
-            xp: 0,
-            wallHp: { maria: 15, rose: 5, sina: 3 },
+            recruitsData: recruitsFromDb.map(u => normalizeUnit(u, 'recruit')),
+            commandersData: commandersFromDb.map(u => normalizeUnit(u, 'commander')),
+            titansData: titans.map(normalizeTitan),
+            titanIdCounter,
+            logData: [],
+            morale: moraleDefault,
+            xp: xpDefault,
+            wallHp: { maria: wallDefaultHp.maria, rose: wallDefaultHp.rose, sina: wallDefaultHp.sina },
             eventDeck: [],
             eventDiscardPile: [],
             removedEventCards: []
@@ -663,14 +680,14 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTitanSpawnLegend();
         renderWallHP();
     };
-    
+
     // --- NUOVA LOGICA PER DANNI ALLE MURA ---
     const processWallHpChange = (wallName, finalHp) => {
         const oldHp = gameState.wallHp[wallName];
         const damage = oldHp - finalHp;
 
         if (damage > 0) {
-            const label = { maria: 'Maria', rose: 'Rose', sina: 'Sina'}[wallName];
+            const label = { maria: 'Maria', rose: 'Rose', sina: 'Sina' }[wallName];
             addLogEntry(`Wall ${label} ha subito ${damage} danni.`, 'damage');
         }
 
@@ -694,9 +711,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderWallHP = () => {
         elements.wallHpSection.innerHTML = '<h3 class="stats-title">Mura</h3>';
-         ['maria', 'rose', 'sina'].forEach(wall => {
+        ['maria', 'rose', 'sina'].forEach(wall => {
             const maxHp = { maria: 15, rose: 5, sina: 3 }[wall];
-            const label = { maria: 'Wall Maria', rose: 'Wall Rose', sina: 'Wall Sina'}[wall];
+            const label = { maria: 'Wall Maria', rose: 'Wall Rose', sina: 'Wall Sina' }[wall];
             const currentHp = gameState.wallHp ? gameState.wallHp[wall] : maxHp;
 
             const statDiv = document.createElement('div');
@@ -715,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateDeckCount = () => {
-        if(elements.eventDeckCount) {
+        if (elements.eventDeckCount) {
             elements.eventDeckCount.textContent = gameState.eventDeck ? gameState.eventDeck.length : 0;
         }
     };
@@ -737,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const randomIndex = Math.floor(Math.random() * gameState.eventDeck.length);
         currentEventCard = gameState.eventDeck.splice(randomIndex, 1)[0];
-        
+
         elements.eventCardTitle.textContent = currentEventCard.titolo;
         elements.eventCardDescription.textContent = currentEventCard.descrizione;
         elements.eventCardType.textContent = currentEventCard.tipo;
@@ -747,11 +764,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDeckCount();
         saveGameState();
     };
-    
+
     const handleEventCardAction = (action) => {
         if (!currentEventCard) return;
 
-        switch(action) {
+        switch (action) {
             case 'reshuffle':
                 gameState.eventDeck.push(currentEventCard);
                 addLogEntry(`"${currentEventCard.titolo}" rimescolata.`, 'info');
@@ -772,15 +789,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     async function main() {
+
+        await loadDB();
+
         loadGameState();
-        await loadEventCards();
         initializeEventDeck();
         fullRender();
         startMissionTimer();
-        
+
         const setupPopup = (openBtn, closeBtn, popupEl) => {
-            if(openBtn) openBtn.addEventListener('click', () => popupEl.classList.add('show'));
-            if(closeBtn) closeBtn.addEventListener('click', () => popupEl.classList.remove('show'));
+            if (openBtn) openBtn.addEventListener('click', () => popupEl.classList.add('show'));
+            if (closeBtn) closeBtn.addEventListener('click', () => popupEl.classList.remove('show'));
         };
         setupPopup(elements.openRecruitsPopupBtn, elements.closeRecruitsPopupBtn, elements.recruitsPopup);
         setupPopup(elements.openCommandersPopupBtn, elements.closeCommandersPopupBtn, elements.commandersPopup);
@@ -789,10 +808,10 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.moraleSlider.addEventListener('input', () => { updateMorale(); saveGameState(); });
         elements.xpSlider.addEventListener('input', () => { updateXP(); saveGameState(); });
         elements.completeMissionBtn.addEventListener('click', completeMission);
-        if(elements.restartMissionBtn) elements.restartMissionBtn.addEventListener('click', restartMissionTimer);
+        if (elements.restartMissionBtn) elements.restartMissionBtn.addEventListener('click', restartMissionTimer);
         elements.decreaseMissionBtn.addEventListener('click', () => changeMission(-1));
         elements.increaseMissionBtn.addEventListener('click', () => changeMission(1));
-        
+
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.hp-change')) handleHpChange(e);
             if (e.target.closest('.mission-button') || e.target.closest('.remove-from-mission-btn')) handleMissionToggle(e);
@@ -808,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.addTitanBtn.addEventListener('click', addTitan);
         elements.titanGrid.addEventListener('click', handleTitanActions);
-        
+
         elements.resetGameBtn.addEventListener('click', () => elements.resetConfirmModal.classList.add('show'));
         elements.cancelResetBtn.addEventListener('click', () => elements.resetConfirmModal.classList.remove('show'));
         elements.confirmResetBtn.addEventListener('click', () => {
@@ -816,10 +835,10 @@ document.addEventListener('DOMContentLoaded', () => {
             resetGame();
         });
 
-        if(elements.drawEventBtn) elements.drawEventBtn.addEventListener('click', drawEventCard);
-        if(elements.eventReshuffleBtn) elements.eventReshuffleBtn.addEventListener('click', () => handleEventCardAction('reshuffle'));
-        if(elements.eventDiscardBtn) elements.eventDiscardBtn.addEventListener('click', () => handleEventCardAction('discard'));
-        if(elements.eventRemoveBtn) elements.eventRemoveBtn.addEventListener('click', () => handleEventCardAction('remove'));
+        if (elements.drawEventBtn) elements.drawEventBtn.addEventListener('click', drawEventCard);
+        if (elements.eventReshuffleBtn) elements.eventReshuffleBtn.addEventListener('click', () => handleEventCardAction('reshuffle'));
+        if (elements.eventDiscardBtn) elements.eventDiscardBtn.addEventListener('click', () => handleEventCardAction('discard'));
+        if (elements.eventRemoveBtn) elements.eventRemoveBtn.addEventListener('click', () => handleEventCardAction('remove'));
     }
 
     main();
