@@ -114,7 +114,7 @@
 	  { "id": 62, "titolo": "Nebbia fitta",			 "descrizione": "La visibilità cala drasticamente. Tutti i tiri salvezza hanno svantaggio al prossimo turno", "tipo": "Malus" },
 	  { "id": 63, "titolo": "Furia disperata", 		 "descrizione": "La recluta con meno HP guadagna +2 danni al prossimo attacco", "tipo": "Bonus" },
 	  { "id": 64, "titolo": "Sabotaggio armature",	 "descrizione": "Un infiltrato sabota la missione e manomette un equipaggiamento: Una recluta deve scartare un equipaggiamento", "tipo": "Malus" },
-	  { "id": 65, "titolo": "Furia di Hange", 		 "descrizione": "Una recluta si sposta rapidamente con movimento tridimensionale per tutta la mappa. Può effettuare un attacco contro ognuno dei giganti in missione, prima di morire", "tipo": "Evento" },
+	  { "id": 65, "titolo": "Furia di Hange", 		 "descrizione": "Una recluta può spostarsi rapidamente con movimento tridimensionale per tutta la mappa. Può effettuare un attacco contro ognuno dei giganti in missione, prima di morire", "tipo": "Evento" },
 	  { "id": 66, "titolo": "Pioggia di fuoco",      "descrizione": "I giganti vengono colpiti da catapulte. Ogni gigante entro le prime due file di esagoni subisce 2 danni", "tipo": "Evento" },
 	  { "id": 67, "titolo": "Ruggito paralizzante",  "descrizione": "Il prossimo attacco di un gigante infligge il doppio dei danni ma non potrà muoversi nel turno successivo", "tipo": "Evento" },
 	  { "id": 68, "titolo": "Indurimento parziale",  "descrizione": "Per il prossimo turno tutti i danni inferiori a 3 vengono prevenuti, tutti i dannu superiori a 3 vengono raddoppiati", "tipo": "Bonus" },
