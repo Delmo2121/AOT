@@ -153,7 +153,7 @@
 	],
   "units": {
     "recruits": [
-      { "id": 1,  "name": "Armin Arlert",      "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/f5d273/000000?text=A" },
+      { "id": 1,  "name": "Armin Arlert",      "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://static.wikia.nocookie.net/shingekinokyojin/images/f/ff/Armin_Arlelt_%28Anime%29_character_image_%28850%29.png/revision/latest/scale-to-width/360?cb=20210124214612" },
       { "id": 2,  "name": "Connie Springer",   "hp": 8,  "initialHp": 8,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/d3d3d3/000000?text=C" },
       { "id": 3,  "name": "Sasha Braus",       "hp": 7,  "initialHp": 7,  "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/c4a683/FFFFFF?text=S" },
       { "id": 4,  "name": "Reiner Braun",      "hp": 9, "initialHp": 15, "onMission": false, "type": "recruit",   "imageUrl": "https://placehold.co/60x60/e2e8f0/000000?text=R" },
@@ -171,11 +171,11 @@
       { "id": 16, "name": "Eren Yeager",       "hp": 10, "initialHp": 10, "onMission": false, "type": "recruit",   "imageUrl": "https://www.georgefiorini.eu/images/manga/attacco-dei-giganti/eren-jaeger-tv.jpg" }
     ],
     "commanders": [
-      { "id": 1, "name": "Hange Zoë",      "hp": 17, "initialHp": 17, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/5d4c46/FFFFFF?text=H" },
-      { "id": 2, "name": "Mike Zacharias", "hp": 18, "initialHp": 18, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/48bb78/000000?text=M" },
-      { "id": 3, "name": "Erwin Smith",    "hp": 16, "initialHp": 16, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/0077be/FFFFFF?text=E" },
-      { "id": 4, "name": "Levi Ackerman",  "hp": 20, "initialHp": 20, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/4a4a4a/FFFFFF?text=L" },
-	  { "id": 5, "name": "Keith Shadis",   "hp": 17, "initialHp": 17, "onMission": false, "type": "commander", "imageUrl": "https://placehold.co/60x60/4a4a4a/FFFFFF?text=L" }	
+      { "id": 1, "name": "Hange Zoë",      "hp": 17, "initialHp": 17, "onMission": false, "type": "commander", "imageUrl": "https://4kwallpapers.com/images/wallpapers/hange-zoe-5k-attack-5120x2880-15185.jpg" },
+      { "id": 2, "name": "Mike Zacharias", "hp": 18, "initialHp": 18, "onMission": false, "type": "commander", "imageUrl": "https://cdn.shopify.com/s/files/1/0252/1736/8154/files/33e7abb895a05bea2fee9350c37446cca48d1355r5-967-609_00_480x480.jpg?v=1646473635" },
+      { "id": 3, "name": "Erwin Smith",    "hp": 16, "initialHp": 16, "onMission": false, "type": "commander", "imageUrl": "https://static.wikia.nocookie.net/shingekinokyojin/images/3/3f/Erwin_puts_on_his_ODM.png/revision/latest?cb=20171102013340" },
+      { "id": 4, "name": "Levi Ackerman",  "hp": 20, "initialHp": 20, "onMission": false, "type": "commander", "imageUrl": "https://media.printler.com/media/photo/144700.jpg?rmode=crop&width=725&height=1024" },
+	  { "id": 5, "name": "Keith Shadis",   "hp": 17, "initialHp": 17, "onMission": false, "type": "commander", "imageUrl": "https://static.wikia.nocookie.net/shingekinokyojin/images/e/e6/Keith.png/revision/latest?cb=20130930182018&path-prefix=it" }	
     ],
     "titans": [],
     "titanIdCounterStart": 0
