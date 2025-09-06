@@ -120,7 +120,7 @@
 	  { "id": 68, "titolo": "Indurimento parziale",  "descrizione": "Per il prossimo turno tutti i danni inferiori a 3 vengono prevenuti, tutti i danni superiori a 3 vengono raddoppiati", "tipo": "Bonus" },
 	  { "id": 69, "titolo": "Crollo improvviso",     "descrizione": "Un edificio cede nell'incrocio di 2d6: quell'esagono diventa non calpestabile per il resto della missione. Se un gigante era presente sull'esagono subisce 3 danni. Se un personaggio era presente sull'esagono deve effettuare un tiro salvezza CD 14 o subire 3 danni.", "tipo": "Malus" },
 	  { "id": 70, "titolo": "Richiamo alle armi",    "descrizione": "Il giocatore che controlla la recluta con più HP può piazzare una nuova recluta in una casella di partenza libera. Questa recluta subisce 2 danni", "tipo": "Evento" },
-	  { "id": 71, "titolo": "Esplosione di rabbia",  "descrizione": "Il prossimo attacco di un gigante ignora armature e riduzioni di danno", "tipo": "Malus" },
+	  { "id": 71, "titolo": "Esplosione di rabbia",  "descrizione": "Il prossimo turno gli attacchi dei giganti ignorano eventuali equipaggiamenti e buff per riduzioni di danno. I danni non possono essere prevenuti tramite consumabili", "tipo": "Malus" },
 	  { "id": 72, "titolo": "Bandiera del coraggio", "descrizione": "Il morale aumenta di 3", "tipo": "Bonus" },
 	  { "id": 73, "titolo": "Evacuazione fallita",   "descrizione": "Un gruppo di civili viene travolto. Perdi 2 morale", "tipo": "Malus" },
 	  { "id": 74, "titolo": "Squadra di supporto",   "descrizione": "Tutti i giocatori che hanno perso almeno una recluta pescano una carta equipaggiamento", "tipo": "Evento" },
