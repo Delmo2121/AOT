@@ -1,3 +1,60 @@
+const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+class AudioService {
+    /** @param {string} url @param {{loop?:boolean, volume?:number}} [opts] */
+    async play(url, opts = {}) {
+        const { loop = false, volume = 1 } = opts;
+        const audio = new Audio();
+        audio.src = url; audio.preload = 'auto'; audio.loop = loop; audio.volume = clamp(volume, 0, 1); audio.crossOrigin = 'anonymous';
+        try { await audio.play(); } catch (e) { console.warn('Autoplay blocked or error:', e); }
+        return audio;
+    }
+}
+
+class StartOverlayView {
+    /** @param {{title?:string,message?:string,confirmText?:string,cancelText?:string,imageUrl?:string,imageAlt?:string}} [opts] */
+    static show(opts = {}) {
+        const {
+            title = 'Benvenuto su AOT Campaign',
+            message = 'Sei pronto a difendere le mura dalla minaccia dei Giganti?',
+            confirmText = 'Li sterminerò tutti!',
+            cancelText = 'Mi rifugerò nei territori interni!',
+            imageUrl = 'corpo_di_ricerca.jpg',
+            imageAlt = 'Artwork AOT'
+        } = opts;
+
+        return new Promise(resolve => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter: blur(2px) saturate(.9); display:grid; place-items:center; z-index:999999; transition:opacity .2s; opacity:0;`;
+            const modal = document.createElement('div');
+            modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true');
+            modal.style.cssText = `width:min(560px,92vw); background:linear-gradient(180deg,#121421,#171a2b); color:#e7e9ef; border:1px solid #2a2e45; border-radius:16px; padding:20px 20px 84px; box-shadow:0 16px 48px rgba(0,0,0,.45); transform:translateY(8px); transition:transform .2s, opacity .2s; opacity:0; position:relative;`;
+            const accent = '#c53030';
+            modal.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:6px;height:28px;border-radius:4px;background:${accent};box-shadow:0 0 0 1px rgba(0,0,0,.25) inset;"></div>
+          <h2 style="margin:0;font-size:22px;letter-spacing:.3px;">${title}</h2>
+        </div>
+        ${imageUrl ? `<img src="${imageUrl}" alt="${imageAlt}" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.35);outline:1px solid rgba(255,255,255,.06);margin-bottom:14px;" onerror="this.style.display='none'">` : ''}
+        <p style="margin:0;opacity:.95;">${message}</p>
+        <button id="start-cancel" style="position:absolute;left:20px;bottom:20px;padding:10px 14px;border-radius:10px;border:1px solid #2a2e45;background:#1d2240;color:#e7e9ef;cursor:pointer;">${cancelText}</button>
+        <button id="start-confirm" style="position:absolute;right:20px;bottom:20px;padding:10px 14px;border-radius:10px;border:none;background:${accent};color:#fff;cursor:pointer;">${confirmText}</button>
+      `;
+            overlay.appendChild(modal); document.body.appendChild(overlay);
+            const prevOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
+            requestAnimationFrame(() => { overlay.style.opacity = '1'; modal.style.opacity = '1'; modal.style.transform = 'translateY(0)'; });
+
+            const cleanup = (res) => { document.body.style.overflow = prevOverflow; overlay.remove(); resolve(res); };
+            const onKey = (e) => { if (e.key === 'Escape') cleanup(false); if (e.key === 'Enter') confirm.click(); };
+            const confirm = modal.querySelector('#start-confirm');
+            const cancel = modal.querySelector('#start-cancel');
+            cancel.addEventListener('click', () => cleanup(false));
+            confirm.addEventListener('click', () => cleanup(true));
+            document.addEventListener('keydown', onKey, { once: true });
+            setTimeout(() => confirm.focus(), 0);
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- DATA & STATE MANAGEMENT ---
     let db = {};                       // conterrà i dati di aot_db.json
@@ -6,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let titanSpawnTable = {};          // da db.titanSpawnTable
     let defaultMissionTimerSeconds = 20 * 60; // sovrascrivibile da db.settings.missionTimerSeconds
 
+    let gameSoundTrack = {
+
+    };
     let gameState = {};
     let missionTimerInterval;
     let pendingHpChanges = {};
@@ -15,7 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEventCard = null;
 
     const titanTypes = ['Puro', 'Anomalo', 'Mutaforma'];
+    const dataColor = {
+        "Puro": "silver",
+        "Anomalo": "yellow",
+        "Mutaforma": "red"
+    }
 
+    const dataImg = {
+        "Puro": "gigante_puro.jpg",
+        "Anomalo": "anomalo.png",
+        "Mutaforma": "mutaforma.jpg"
+    }
 
     const elements = {
         moraleSlider: document.getElementById('morale'),
@@ -39,10 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
         decreaseMissionBtn: document.getElementById('decrease-mission'),
         increaseMissionBtn: document.getElementById('increase-mission'),
         addTitanBtn: document.getElementById('add-titan-btn'),
+        openGridPopup: document.getElementById('open-grid-popup'),
+        closeGridPopup: document.getElementById('close-grid-popup'),
         titanGrid: document.getElementById('titan-grid'),
         completeMissionBtn: document.getElementById('complete-mission-btn'),
         restartMissionBtn: document.getElementById('restart-mission-btn'),
         resetGameBtn: document.getElementById('reset-game-btn'),
+        gridPopup: document.getElementById('grid-popup'),
         resetConfirmModal: document.getElementById('reset-confirm-modal'),
         confirmResetBtn: document.getElementById('confirm-reset-btn'),
         cancelResetBtn: document.getElementById('cancel-reset-btn'),
@@ -62,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         eventReshuffleBtn: document.getElementById('event-reshuffle-btn'),
         eventDiscardBtn: document.getElementById('event-discard-btn'),
         eventRemoveBtn: document.getElementById('event-remove-btn'),
+        hexGrid: document.getElementById("hex-grid"),
+        hexTooltip: document.getElementById("tooltip")
     };
 
     async function loadDB() {
@@ -279,10 +354,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const currentSpawnData = titanSpawnTable[gameState.currentMissionNumber] || titanSpawnTable[1];
+        const m = currentSpawnData['Mutaforma'].min === 20 ? currentSpawnData['Mutaforma'].min : currentSpawnData['Mutaforma'].min + "-" + currentSpawnData['Mutaforma'].max;
         legend.innerHTML = `
-            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#a0aec0;"></div><span>${currentSpawnData['Puro']}</span></div>
-            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#ecc94b;"></div><span>${currentSpawnData['Anomalo']}</span></div>
-            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#f56565;"></div><span>${currentSpawnData['Mutaforma']}</span></div>
+            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#a0aec0;"></div><span>${currentSpawnData['Puro'].min}-${currentSpawnData['Puro'].max}</span></div>
+            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#ecc94b;"></div><span>${currentSpawnData['Anomalo'].min}-${currentSpawnData['Puro'].max}</span></div>
+            <div style="display:flex; align-items:center; gap: 0.25rem;"><div style="width:1rem; height:1rem; border-radius:50%; background-color:#f56565;"></div><span>${m}</span></div>
         `;
     };
 
@@ -443,10 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTitans();
         renderLog();
         updateDeckCount();
+        renderGrid(elements.hexGrid, 8, 6, gameState.spawns);
     };
 
     // --- FIX: Aggiunto updateAllUIElements() per aggiornare la vista ---
-    const handleMissionToggle = (e) => {
+    const handleMissionToggle = async (e) => {
         const target = e.target.closest('.mission-button, .remove-from-mission-btn');
         if (!target) return;
         const { id, type } = target.dataset;
@@ -456,7 +533,17 @@ document.addEventListener('DOMContentLoaded', () => {
             unit.onMission = !unit.onMission;
             updateAllUIElements(); // <-- BUG FIX
             saveGameState();
+
+            if (unit.onMission && type !== 'recruit') {
+                const url = './assets/commander_march_sound.mp3';
+                const audioService = new AudioService();
+                gameSoundTrack.backgroundSound.pause();
+                const backgroundSound = await audioService.play(url, { loop: true, volume: 1 });
+                gameSoundTrack.backgroundSound = backgroundSound;
+            }
         }
+
+
     };
 
     const handleTitanActions = (e) => {
@@ -470,33 +557,112 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = target.dataset.id;
         if (!id) return;
         const titan = gameState.titansData.find(t => t.id == id);
+        const titanOnGrid = gameState.spawns.find(t => t.unitId == id);
         if (!titan) return;
 
         if (target.matches('.remove-titan-btn')) {
             gameState.titansData = gameState.titansData.filter(t => t.id != id);
+            gameState.spawns = gameState.spawns.filter(t => t.unitId != id);
         } else if (target.matches('.cooldown-change')) {
             titan.cooldown = Math.max(0, titan.cooldown + parseInt(target.dataset.amount, 10));
         } else if (target.matches('.titan-type-switcher')) {
             const currentIndex = titanTypes.indexOf(titan.type);
             titan.type = titanTypes[(currentIndex + 1) % titanTypes.length];
+            titanOnGrid.name = titan.type;
+            titanOnGrid.color = dataColor[titan.type];
+            titanOnGrid.img = dataImg[titan.type];
         }
         renderTitans();
+        renderGrid(elements.hexGrid, 8, 6, gameState.spawns);
         saveGameState();
     };
 
-    const addTitan = () => {
+    const getRandomTitan = (row, col, unitId, type) => {
+        const titanList = db.units[type];
+        const randomIndex = Math.floor(Math.random() * titanList.length);
+        const titan = titanList[randomIndex];
+        return  {
+            unitId,
+            name: titan.name,
+            color: dataColor[type],
+            img: titan.img,
+            hp: titan.hp,
+            atk: titan.atk,
+            skill: titan.skill,
+            row,
+            col
+        };
+    }
+
+    const addTitan = async () => {
+
         const newId = (gameState.titanIdCounter || 0) + 1;
         gameState.titanIdCounter = newId;
+
+        const currentSpawnData = titanSpawnTable[gameState.currentMissionNumber] || titanSpawnTable[1];
+        const roll20 = Math.floor(Math.random() * 20) + 1;
+        const titanType = getTitanType(roll20, currentSpawnData);
+
         const newTitan = {
             id: newId, name: `Gigante #${newId}`,
-            hp: 12, initialHp: 12, cooldown: 0, type: 'Puro',
+            hp: 12, initialHp: 12, cooldown: 0, type: titanType,
             isDefeated: false, createdAt: Date.now()
         };
+
+        
+
+
+        let roll6x = Math.floor(Math.random() * 6) + 1;
+        let roll6y = Math.floor(Math.random() * 6) + 1;
+
+        while (getUnitAt(roll6x, roll6y)) {
+            roll6x = Math.floor(Math.random() * 6) + 1;
+            roll6y = Math.floor(Math.random() * 6) + 1;
+        }
+
+        const spawnObj = getRandomTitan(roll6x, roll6y, newId, newTitan.type);
+
+        newTitan.name = spawnObj.name;
+        newTitan.hp = spawnObj.hp;
+
         gameState.titansData.push(newTitan);
-        addLogEntry(`${newTitan.name} è apparso.`, 'info');
+        gameState.spawns.push(spawnObj);
+
+        addLogEntry(`${spawnObj.name} è apparso. In ${roll6x} - ${roll6y} `, 'info');
         renderTitans();
+        renderGrid(elements.hexGrid, 8, 6, gameState.spawns);
         saveGameState();
+
+        let url = './assets/flash_effect_sound.mp3';
+        let flagLoop = false;
+        const audioService = new AudioService();
+        switch (newTitan.type) {
+            case "Anomalo":
+                flagLoop = true;
+                url = './assets/ape_titan_sound.mp3';
+                gameSoundTrack.backgroundSound.pause();
+                break;
+            case "Mutaforma":
+                flagLoop = true;
+                url = './assets/mutaform_sound.mp3';
+                gameSoundTrack.backgroundSound.pause();
+                break
+        }
+
+        const backgroundSound = await audioService.play(url, { loop: flagLoop, volume: 1 });
+
+        if (newTitan.type !== "Puro")
+            gameSoundTrack.backgroundSound = backgroundSound;
     };
+
+    function getTitanType(roll, row) {
+        for (const [type, range] of Object.entries(row)) {
+            if (roll >= range.min && roll <= range.max) {
+                return type;
+            }
+        }
+        return null; // non dovrebbe mai succedere
+    }
 
     const changeMission = (amount) => {
         let newMissionNumber = gameState.currentMissionNumber + amount;
@@ -657,7 +823,8 @@ document.addEventListener('DOMContentLoaded', () => {
             wallHp: { maria: wallDefaultHp.maria, rose: wallDefaultHp.rose, sina: wallDefaultHp.sina },
             eventDeck: [],
             eventDiscardPile: [],
-            removedEventCards: []
+            removedEventCards: [],
+            spawns: []
         };
     };
 
@@ -788,7 +955,216 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGameState();
     };
 
+    function renderGrid(container, rows = 8, cols = 6, occupancy = []) {
+        container.textContent = "";
+
+        // mappa (row,col) -> unitId
+        const occKey = (r, c) => `${r},${c}`;
+        const occMap = new Map(occupancy.map(s => [occKey(s.row, s.col), s.unitId]));
+
+        for (let r = 1; r <= rows; r++) {
+            const rowEl = document.createElement("div");
+            rowEl.className = "hex-row";
+            rowEl.dataset.row = r;
+
+            for (let c = 1; c <= cols; c++) {
+                const hex = createHexagon(r, c, occMap.get(occKey(r, c)));
+                rowEl.appendChild(hex);
+            }
+            container.appendChild(rowEl);
+        }
+    }
+
+    function createHexagon(row, col, unitId) {
+        const hex = document.createElement("div");
+        hex.className = "hexagon";
+        hex.dataset.row = row;
+        hex.dataset.col = col;
+
+        const unit = unitId ? new Map(gameState.spawns.map(u => [u.unitId, u])).get(unitId) : null;
+
+        if (!unit) {
+            hex.classList.add("is-empty");
+        } else {
+            if (unit.color) hex.setAttribute("data-color", unit.color);
+            const content = document.createElement("div");
+            content.className = "hex-content";
+            content.draggable = true;               // si può trascinare l’unità dalla cella
+            content.dataset.unitId = unit.unitId;
+
+            // cerchio immagine
+            const circle = document.createElement("div");
+            circle.className = "hex-circle";
+            const img = document.createElement("img");
+            img.src = unit.img; img.alt = unit.name;
+            circle.appendChild(img);
+
+            // titolo + sub
+            /*const title = document.createElement("span");
+            title.className = "hex-title"; 
+            title.textContent = unit.name;
+            const sub = document.createElement("span");
+            sub.className = "hex-sub"; sub.textContent = unit.subtitle || "";*/
+
+            content.append(circle/*, title, sub*/);
+            hex.appendChild(content);
+
+
+            // --- Tooltip handlers ---
+            hex.addEventListener("mouseenter", (e) => {
+                const html = getUnitTooltipHTML(unit);
+                showTooltip(html, e.clientX, e.clientY);
+            });
+            hex.addEventListener("mousemove", (e) => {
+                positionTooltip(e.clientX, e.clientY);
+            });
+            hex.addEventListener("mouseleave", () => {
+                hideTooltip();
+            });
+
+            // DnD start (da cella)
+            content.addEventListener("dragstart", (e) => {
+                content.classList.add("dragging");
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("application/json", JSON.stringify({
+                    type: "from-cell",
+                    unitId: unit.unitId,
+                    from: { row, col }
+                }));
+            });
+            content.addEventListener("dragend", () => content.classList.remove("dragging"));
+        }
+
+        // Target DnD: evidenziazione & drop
+        hex.addEventListener("dragover", (e) => {
+            // consenti drop su tutte le celle (vuote o piene — gestiremo swap in drop)
+            e.preventDefault();
+            hex.classList.add("drop-ok");
+        });
+        hex.addEventListener("dragleave", () => {
+            hex.classList.remove("drop-ok");
+        });
+        hex.addEventListener("drop", (e) => {
+            e.preventDefault();
+            hex.classList.remove("drop-ok");
+
+            const payloadRaw = e.dataTransfer.getData("application/json");
+            if (!payloadRaw) return;
+            let payload;
+            try { payload = JSON.parse(payloadRaw); } catch { return; }
+
+            const target = { row, col };
+            handleDrop(payload, target);
+        });
+
+        return hex;
+    }
+
+    /* =======================
+       LOGICA DROP: move/swap
+       ======================= */
+    function handleDrop(payload, target) {
+        if (payload.type === "from-cell") {
+            const from = payload.from;
+            // se stessa cella: nulla
+            if (from.row === target.row && from.col === target.col) return;
+            // sposta o scambia
+            moveOrSwapCells(from, target);
+            renderGrid(elements.hexGrid, 8, 6, gameState.spawns);
+        }
+    }
+
+    /* Trova indice dello spawn in (r,c) */
+    function findSpawnIndex(r, c) {
+        return gameState.spawns.findIndex(s => s.row === r && s.col === c);
+    }
+
+    /* Ritorna unitId in (r,c) o null */
+    function getUnitAt(r, c) {
+        const i = findSpawnIndex(r, c);
+        return i >= 0 ? gameState.spawns[i].unitId : null;
+    }
+
+    /* Move o swap tra due celle del campo */
+    function moveOrSwapCells(from, to) {
+        const fromIdx = findSpawnIndex(from.row, from.col);
+        if (fromIdx < 0) return;
+
+        const targetUnitId = getUnitAt(to.row, to.col);
+        if (!targetUnitId) {
+            // move           
+            const a = gameState.spawns[fromIdx];
+            a.row = to.row;
+            a.col = to.col;
+        } else {
+            // swap
+            const toIdx = findSpawnIndex(to.row, to.col);
+            const a = gameState.spawns[fromIdx];
+            const b = gameState.spawns[toIdx];
+            a.row = to.row;
+            a.col = to.col;
+            b.row = from.row;
+            b.col = from.col;
+        }
+    }
+
+
+    /** Costruisce l'HTML del tooltip per un'unità */
+    function getUnitTooltipHTML(unit) {
+        const name = unit.name ?? "Unità";
+        const sub = unit.subtitle ?? "";
+        const hp = unit.hp ?? "—";
+        const atk = unit.atk ?? "—";
+        const abi = unit.skill ?? "Nessuna";
+        // NB: contenuto generato da dati interni, non da input utente → ok innerHTML
+        return `
+    <div class="tt-title">${name}</div>
+    ${sub ? `<div class="tt-sub">${sub}</div>` : ``}
+    <div class="tt-stats">
+      <div class="tt-label">HP</div><div class="tt-value">${hp}</div>
+      <div class="tt-label">ATK</div><div class="tt-value">${atk}</div>
+       <div class="tt-label">SKILL</div><div class="tt-value">${abi}</div>
+    </div>
+  `;
+    }
+
+    /** Mostra il tooltip con l'HTML dato e lo posiziona vicino al mouse */
+    function showTooltip(html, x, y) {
+        elements.hexTooltip.innerHTML = html;
+        elements.hexTooltip.style.display = "block";
+        positionTooltip(x, y);
+    }
+
+    /** Nasconde tooltip */
+    function hideTooltip() {
+        elements.hexTooltip.style.display = "none";
+    }
+
+    /** Posizionamento (evita che esca dallo schermo) */
+    function positionTooltip(mouseX, mouseY) {
+        const offset = 14;
+        const { innerWidth: vw, innerHeight: vh } = window;
+        const rect = elements.hexTooltip.getBoundingClientRect();
+        let left = mouseX + offset;
+
+        let top = mouseY + offset;
+
+        if (left + rect.width > vw) left = mouseX - rect.width - offset;
+        if (top + rect.height > vh) top = mouseY - rect.height - offset;
+
+        elements.hexTooltip.style.left = left + "px";
+        elements.hexTooltip.style.top = top + "px";
+    }
+
+
+
     async function main() {
+        const url = './assets/risorsa_audio_avvio_app.mp3';
+        const audioService = new AudioService();
+        const proceeded = await StartOverlayView.show();
+        if (!proceeded) return;
+        const backgroundSound = await audioService.play(url, { loop: true, volume: 1 });
+        gameSoundTrack.backgroundSound = backgroundSound;
 
         await loadDB();
 
@@ -803,6 +1179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         setupPopup(elements.openRecruitsPopupBtn, elements.closeRecruitsPopupBtn, elements.recruitsPopup);
         setupPopup(elements.openCommandersPopupBtn, elements.closeCommandersPopupBtn, elements.commandersPopup);
+        setupPopup(elements.openGridPopup, elements.closeGridPopup, elements.gridPopup);
         setupPopup(elements.logPanelTrigger, elements.closeLogPanel, elements.logPanel);
 
         elements.moraleSlider.addEventListener('input', () => { updateMorale(); saveGameState(); });

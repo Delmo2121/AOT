@@ -13,6 +13,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
+
+    <link href='https://fonts.googleapis.com/css?family=Raleway:300' rel='stylesheet' type='text/css'>
 </head>
 <script>
     if ('serviceWorker' in navigator) {
@@ -79,7 +81,9 @@
                 <!-- TITAN BOX -->
                 <div class="grid-item titan-box">
                     <h2 class="grid-item-title titans-header">Giganti in Campo</h2>
+
                     <div class="grid-item-content">
+                        <button id="open-grid-popup" class="btn btn-open-grid">Visualizza Griglia Battaglia</button>
                         <button id="add-titan-btn" class="btn btn-add-titan">Aggiungi Gigante</button>
                         <div id="titan-grid" class="mission-units-grid"></div>
                     </div>
@@ -163,6 +167,22 @@
             </div>
         </div>
     </div>
+
+    <div id="grid-popup" class="popup">
+        <div id="tooltip"></div>
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Griglia Combattimento</h2><button class="close-button" id="close-grid-popup">&times;</button>
+            </div>
+            <div class="grid-container">
+                <div class="wrapper">
+                    <div id="hex-grid"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div id="commanders-popup" class="popup">
         <div class="popup-content">
             <div class="popup-header">
@@ -180,6 +200,8 @@
                     id="confirm-reset-btn" class="btn btn-reset">Conferma</button></div>
         </div>
     </div>
+
+
 
     <!-- EVENT CARD POPUP -->
     <div id="event-card-popup" class="popup">
